@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/common.css">
+</head>
+<style>
+    .outer_container{
+        width:700px;
+        height:505px;
+        position: relative;
+        overflow: hidden;
+        left:250px;
+        top:0;
+    }
+    .container{
+        width:580px;
+        height:404px;
+        position: relative;
+        overflow: hidden;
+        left:55px;
+        z-index: 10;
+    }
+/*    .mask{
+        width:580px;
+        height:404px;
+        position: absolute;
+        left:55px;
+        top: 0;
+        z-index: 15;
+        background-color: #fff;
+        opacity: 0.9;
+        display: block;
+    }*/
+    .imgs{
+        position:absolute;
+        padding:0;
+        left:0;
+        margin:0;
+    }
+    .container .imgs  li{
+        float:left;
+        list-style: none;
+        width: 580px;
+        height: 400px;
+        overflow: hidden;
+    }
+    .container .imgs  li img{
+        width: 580px;
+        height: 400px;
+        display: block;
+    }
+    .index{
+        position:absolute;
+        padding:0;
+        z-index: 10;
+        left:40%;
+        top:90%;
+    }
+    .index li{
+        width:20px;
+        height:20px;
+        border-radius:50%;
+        text-align: center;
+        line-height: 20px;
+        list-style: none;
+        float:left;
+        background:white;
+        margin-right:5px;
+        cursor:pointer;
+    }
+    .index>.hover1{
+        background:red;
+        color:white;
+    }
+    .left_icon{
+        position:absolute;
+        width:50px;
+        height:50px;
+        left:0px;
+        top:35%;
+    }
+    .left_icon img,.right_icon img{
+        width:50px;
+        height:50px;
+    }
+    .right_icon{
+        position:absolute;
+        width:50px;
+        height:50px;
+        right:0px;
+        top:35%;
+    }
+    /*小轮播*/
+    .card-container >ul >li{
+        position: absolute;
+    }
+    .card-container >ul >li >img{
+        width: 580px;
+        height: 400px;
+        display: block;
+        -webkit-transition: all .3s ease;
+        transition: all .3s ease;
+    }
+    .card-container >ul{
+    }
+    .card-over{
+        width: 583px;
+        height: 400px;
+        /*border: 1px solid #e6e6e6;*/
+        overflow: hidden;
+        /*margin: 0 auto;*/
+        border-radius: 5px;
+        position: relative;
+        margin:0;
+        top:-80%;
+        left:7.5%;
+        z-index: 1;
+    }
+    .card-over:hover >.card-container >ul >li{
+        float: left;
+        position: relative;
+        margin-right: -200px;
+    }
+    .card-over:hover >.card-container >ul >li >img{
+        transform: scale(0.7);
+        display: block;
+    }
+    .card-over:hover >.card-container >ul{
+        position: relative;
+    }
+    .daohang{
+        position: absolute;
+        bottom: 25px;
+        left: 40%;
+        z-index: 200;
+    }
+    .daohang >dl >dd{
+        float: left;
+        width: 20px;
+        text-align: center;
+        cursor: pointer;
+    }
+    .daohang >dl >dd.current{
+        background-color: #00a0e9 !important;
+    }
+    .click_left{
+        width: 10%;
+        height: 100%;
+        position: absolute;
+        z-index: 200;
+        left: 0;
+    }
+    .click_right{
+        width: 10%;
+        height: 100%;
+        position: absolute;
+        z-index: 200;
+        right: 0;
+    }
+</style>
+<body>
+<div class="outer_container">
+    <div class="container">
+        <ul class="imgs">
+
+        </ul>
+        <ul class="index">
+
+        </ul>
+    </div>
+    <div class="mask"></div>
+    <div class="left_icon"><img src="images/icon_left.png"></div>
+    <div class="right_icon"><img src="images/icon_right.png"></div>
+
+    <div class="card-over">
+        <div class="click_left"></div>
+        <div class="click_right"></div>
+        <div class="card-container">
+            <ul class="clearfix">
+            </ul>
+        </div>
+        <div class="daohang">
+            <dl class="clearfix">
+            </dl>
+        </div>
+    </div>
+</div>
+<script src="js/jquery-3.1.0.min.js"></script>
+<script>
+var img=[
+    {"i":1,"img":"images/project1_1.jpg",
+        "img_w":[{"w":1,"img_lun":"images/project1_1.jpg"},
+            {"w":2,"img_lun":"images/project1_2.jpg"},
+            {"w":3,"img_lun":"images/project1_3.jpg"},
+            {"w":4,"img_lun":"images/project1_4.jpg"}]
+    },
+    {"i":2,"img":"images/project1_2.jpg",
+        "img_w":[{"w":1,"img_lun":"images/project1_1.jpg"},
+            {"w":2,"img_lun":"images/project1_2.jpg"},
+            {"w":3,"img_lun":"images/project1_3.jpg"}]
+    },
+    {"i":3,"img":"images/project1_3.jpg",
+        "img_w":[{"w":1,"img_lun":"images/project1_1.jpg"},
+            {"w":2,"img_lun":"images/project1_2.jpg"},
+            {"w":3,"img_lun":"images/project1_3.jpg"},
+            {"w":4,"img_lun":"images/project1_4.jpg"},
+            {"w":5,"img_lun":"images/project1_5.jpg"}]
+    },
+];
+
+    var adv= {
+        LIWIDTH: 0,//保存每个li的宽度
+        DISTANCE: 0,//保存总距离
+        DURATION: 1000,//保存总时间
+        STEPS: 200,//保存总步数
+        interval: 0,//保存步频
+        step: 0,//保存步长
+        moved: 0,//保存已经移动的位移
+        timer: null,//保存定时器序号
+        WAIT: 3000,//自动轮播之间的等待时间
+        canAuto: true,//标示是否可以启动自动轮播
+        init: function () {
+            //获得id为slider的div的宽,保存在LIWIDTH中
+            this.LIWIDTH = parseFloat(
+                    getComputedStyle($(".container")[0]).width
+            );
+            //计算interval: DURATION/STEPS
+            this.interval = this.DURATION / this.STEPS;
+            this.updateView();//更新页面
+            //为id为indexs的ul绑定鼠标进入事件为function
+            $(".index").on("mouseover", "li",
+                    function () {
+                        var n = $(this).html()
+                                - $(".index>.hover1").html();
+                        adv.move(n);//调用move(n)
+                    }
+            );
+            //调用autoMove，启动自动轮播
+            this.autoMove();
+            this.moveClick();
+            //为id为slide绑定鼠标进入事件为:
+            $(".imgs").on("mouseover", function () {
+                this.canAuto = false;//修改canAuto为false
+                $(".card-over").css("z-index","50");
+                $(".card-over").on("mouseover", function () {
+                    adv.canAuto = false;
+                    $(".card-over").css("z-index","50");
+                    $(".imgs").css("opacity","0.1");
+                    $(".index").css("opacity","0");
+                });
+            }.bind(this));
+            //为id为slide绑定鼠标移出事件为:
+            $(".imgs").on("mouseout", function () {
+                this.canAuto = true;//修改canAuto为true
+                $(".card-over").css("z-index","1");
+                $(".card-over").on("mouseout", function () {
+                    $(".card-over").css("z-index","1");
+                    this.canAuto = true;
+                    $(".imgs").css("opacity","1");
+                    $(".index").css("opacity","1");
+                });
+            }.bind(this));
+            adv.sub_adv_init(0);
+            adv.sub_adv();
+
+        },
+        updateView: function () {//将数组内容更新到页面
+            //遍历imgs中每个元素,同时声明空字符串htmlImgs,和htmlIdxs
+            for (var i = 0,
+                         htmlImgs = "",
+                         htmlIdxs = "";
+                 i < img.length;
+                 i++) {
+                //向htmlImgs中拼接一个<li><img src="当前元素的img属性"></li>
+                htmlImgs +=
+                        '<li><img src="' + img[i].img + '"></li>';
+                //向htmlIdxs中拼接一个<li>i+1</li>
+                htmlIdxs += "<li>" + (i+1) + "</li>";
+            }
+            //设置id为imgs的元素的内容为htmlImgs
+            $(".imgs")[0].innerHTML = htmlImgs;
+            //设置id为imgs的元素的宽为LIWIDTH*imgs的元素个数
+            $(".imgs")[0].style.width =
+                    this.LIWIDTH * img.length + "px";
+            //设置id为indexs的元素的内容为htmlIdxs
+            $('.container>.index').html(htmlIdxs);
+            //找到id为indexs下所有li中和imgs数组第一个元素的i属性标示的位置相同的li，设置其class为hover
+            $(".index li")[(img[0].i)-1].className = "hover1";
+            //
+        },
+        autoMove: function () {//启动自动轮播
+            //启动一次性定时器,任务:move,参数为1,等待时间为WAIT
+            this.timer = setTimeout(
+                    function () {
+                        //如果可以启动自动轮播
+                        if (this.canAuto) {
+                            this.move(1);//调用move方法，移动1次
+                        } else {//否则
+                            //调用autoMove，再次等待
+                            this.autoMove();
+                        }
+                    }.bind(this), this.WAIT
+            );
+        },
+        move: function (n) {//启动一次移动
+            //停止动画，清除timer-防止动画叠加
+            clearInterval(this.timer);
+            this.timer = null;
+            if (n < 0) {//如果右移
+                //删除imgs结尾的n个元素，拼接到imgs开头
+                img = img.splice(img.length + n, -n)
+                        .concat(img);
+                this.updateView();//更新页面
+                //获得id为imgs的ul的left
+                var left = parseFloat(
+                        getComputedStyle($(".imgs")[0]).left
+                );
+                //计算start:left-this.LIWIDTH*n;
+                var start = left - this.LIWIDTH * (-n);
+                //设置id为imgs的ul的left为left-LIWIDTH*n
+                $(".imgs")[0].style.left = start + "px";
+                var end = 0;
+                adv.sub_adv_init(0);
+                adv.sub_adv();
+
+            } else {//如果左移
+                //获得id为imgs的ul的left，保存在变量start中
+                var start = parseFloat(
+                        getComputedStyle($(".imgs")[0]).left
+                );
+                //用-LIWIDTH*n，保存在变量end中
+                var end = -this.LIWIDTH * n;
+                adv.sub_adv_init(1);
+                adv.sub_adv();
+
+            }
+            //求DISTANCE: -(end-start)
+            this.DISTANCE = -(end - start);
+            //求step:DISTANCE/STEPS
+            this.step = this.DISTANCE / this.STEPS;
+            //启动周期性定时器: moveStep，间隔interval，序号保存在timer中
+            this.timer = setInterval(
+                    this.moveStep.bind(this, n), this.interval
+            );
+        },
+        moveStep: function (n) {//移动一步
+            //获得id为imgs的ul的left
+            var left = parseFloat(
+                    getComputedStyle($(".imgs")[0]).left
+            );
+            //设置id为imgs的ul的left为left-step
+            $(".imgs")[0].style.left = left - this.step + "px";
+            this.moved++;//moved+1
+            //如果moved==STEPS
+            if (this.moved == this.STEPS) {//移动结束
+                //停止定时器，清除timer, moved归0
+                clearInterval(this.timer);
+                this.timer = null;
+                this.moved = 0;
+                if (n > 0) {//如果左移
+                    //删除数组开头的n个元素，拼接到结尾
+                    img = img.concat(img.splice(0, n));
+                    this.updateView();//更新界面:
+                }
+                //清除id为imgs的left
+                $(".imgs")[0].style.left = "";
+                //调用autoMove，启动自动轮播
+                this.autoMove();
+            }
+        },
+        moveClick: function () {
+            $(".outer_container").on("mouseover", ".left_icon,.right_icon", function () {
+                if ($(this).attr("class") == "left_icon") {
+                    $(this)[0].children[0].setAttribute("src", "images/icon_left_hover.png");
+                } else {
+                    $(this)[0].children[0].setAttribute("src", "images/icon_right_hover.png");
+                }
+            });
+            $(".outer_container").on("click", ".left_icon", function () {
+                adv.move(-1);
+            });
+            $(".outer_container").on("click", ".right_icon", function () {
+                adv.move(1);
+            });
+            $(".outer_container").on("mouseout", ".left_icon,.right_icon", function () {
+                if ($(this).attr("class") == "left_icon") {
+                    $(this)[0].children[0].setAttribute("src", "images/icon_left.png");
+                } else {
+                    $(this)[0].children[0].setAttribute("src", "images/icon_right.png");
+                }
+            })
+        },
+        sub_adv_init:function (q) {
+            //遍历加入li和dd
+            for(var j=0,imgss="",imgindex="";j<img[q].img_w.length;j++){
+                imgss+='<li><img src='+ (img[q].img_w)[j].img_lun +'></li>';
+                imgindex +='<dd>'+ (img[q].img_w)[j].w +'</dd>';
+            }
+            $('.outer_container .card-container > ul').html(imgss);
+            $('.outer_container .daohang >dl').html(imgindex);
+        },
+        sub_adv:function(){
+            var slide_init=this.slide;
+            //申明变量和取得对象
+            var numl=$(".outer_container .daohang > dl > dd");
+            var oul=$(".outer_container .card-container > ul");
+            var big=$(".outer_container .card-container > ul > li");
+            var click_left=$(".outer_container .click_left");
+            var click_right=$(".outer_container .click_right");
+            //设置宽度
+            $(".card-container").css("width",400*big.length);
+            //设置第一个图片放大，后一个图片缩小
+            big.attr("style","transform: scale(0.7)");
+            big[0].setAttribute("style","transform: scale(0.9);z-index:100");
+            var _now=0;
+            daohang_spot();
+            //数字的点击事件
+            numl.click(function () {
+                var index=$(this).index();
+                _now=index;
+                slide();
+            });
+            //左右的点击事件
+            click_left.unbind("click").bind("click",function () {
+                if(_now>0) {
+                    _now--;
+                    slide();
+                }
+            });
+            click_right.unbind("click").bind("click",function () {
+                if(_now<big.length-1){
+                    _now++;
+                    slide();
+                }
+            });
+            //缩放图片大小函数
+            function change() {
+                big.attr("style","transform: scale(0.7)");
+                big[_now].setAttribute("style","transform: scale(0.9);z-index:100");
+            };
+            //导航点变换函数
+            function daohang_spot() {
+                numl.attr("style","background-color: #fff !important");
+                numl[_now].setAttribute("style","background-color: rgb(0, 160, 233)");
+            };
+            //切换效果函数
+            function slide() {
+                oul.animate({'left':-380*(_now)},500);
+                change();
+                daohang_spot();
+            };
+            slide();
+        },
+    }
+    adv.init();
+</script>
+</body>
+</html>
